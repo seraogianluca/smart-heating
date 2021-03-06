@@ -1,0 +1,1 @@
+coap-client -m get coap://[$1]:5683/temp -s 100

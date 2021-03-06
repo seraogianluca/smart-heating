@@ -1,7 +1,7 @@
 CONTIKI_PROJECT = temperature_sensor
 all: $(CONTIKI:PROJECT)
 
-# PLATFORMS_EXCLUDE = sky z1
+PLATFORMS_EXCLUDE = sky z1
 
 MODULES_REL += ./resources
 

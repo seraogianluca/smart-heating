@@ -19,7 +19,7 @@ PROCESS_THREAD(temperature, ev, data) {
     
     while(1) {
         PROCESS_WAIT_EVENT();
-        if(ev == PROCESS_EVENT_TIMER && data == &e_timer){
+        if(ev == PROCESS_EVENT_TIMER && data == &e_timer) {
 		printf("Trigger and event\n");	
 		res_temp.trigger();
 		etimer_set(&e_timer, CLOCK_SECOND * 4);
