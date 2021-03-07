@@ -7,3 +7,6 @@
 
 # build directories
 **/build
+
+run
+it.unipi.iot/target/
