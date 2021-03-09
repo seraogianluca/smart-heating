@@ -16,6 +16,7 @@ public class Registration extends CoapResource {
 		exchange.accept();
 		
 		InetAddress source = exchange.getSourceAddress();
+		System.out.println(source.getHostAddress());
 		CoapClient client = new CoapClient("coap://[" + source.getHostAddress() + "]:5683/.well-known/core");
 		CoapResponse response = client.get();
 		
@@ -27,6 +28,20 @@ public class Registration extends CoapResource {
 		
 		String responseText = response.getResponseText();
 		System.out.println("Payload: " + responseText);
+		
+		String[] resources = responseText.split(",");
+		for(String resource:resources) {
+			boolean observable = false;
+			String[] parameters = resource.split(";");
+			// </temp>;title="Temperature sensor";rt="temperature";if="sensor";obs
+			String name = parameters[0].substring(parameters[0].indexOf("/") + 1, parameters[0].indexOf(">"));
+			
+			if(resource.contains("obs")) {
+				observable = true;
+			}
+			
+		}
+		
 	}
 	
 }
