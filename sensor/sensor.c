@@ -1,8 +1,24 @@
 #include "contiki.h"
 #include "coap-engine.h"
+#include "coap-blocking-api.h"
 #include "sys/etimer.h"
 #include <stdio.h>
 #include <stdlib.h>
+
+#define SERVER_EP "coap://[fd00::202:2:2:2]:5683"
+char *service_url = "/hello"
+
+void client_chunk_handler(coap_message_t *response) {
+    const uint8_t *chunk;
+
+    if(response == NULL) {
+        printf("Request timed out\n");
+        return;
+    }
+
+    int len = coap_get_payload(response, &chunk);
+    printf("|%.*s", len, (char *)chunk);
+}
 
 PROCESS(temperature, "Temperature sensor");
 AUTOSTART_PROCESSES(&temperature);

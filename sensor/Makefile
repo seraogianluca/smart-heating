@@ -1,4 +1,4 @@
-CONTIKI_PROJECT = temperature_sensor
+CONTIKI_PROJECT = sensor
 all: $(CONTIKI:PROJECT)
 
 PLATFORMS_EXCLUDE = sky z1

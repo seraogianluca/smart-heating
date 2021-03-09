@@ -7,3 +7,9 @@
 
 # build directories
 **/build
+**/target/
+/run
+
+# files
+*.cooja
+*.properties

@@ -23,7 +23,7 @@ update_temp() {
 }
 
 EVENT_RESOURCE(res_temp,
-         "title=\"temp\";rt=\"temperature\";ct=\"50\";if=\"sensor\";obs",
+         "title=\"temp\";rt=\"temperature\";if=\"sensor\";obs",
          res_get_handler,
          NULL,
          NULL,
