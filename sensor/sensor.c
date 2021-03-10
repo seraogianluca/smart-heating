@@ -48,7 +48,6 @@ PROCESS_THREAD(node, ev, data) {
 
     // Resources activation
     coap_activate_resource(&res_temp, "temp");
-    etimer_set(&e_timer, CLOCK_SECOND * 4);
 
     // Registration
     LOG_INFO("Registering...\n");
@@ -62,14 +61,14 @@ PROCESS_THREAD(node, ev, data) {
     }
 
     LOG_INFO("Registered.\n");
-
+    
     while(1) {
+        etimer_set(&e_timer, CLOCK_SECOND * 4);
         PROCESS_WAIT_EVENT();
 
         if(ev == PROCESS_EVENT_TIMER && data == &e_timer) {
             LOG_INFO("Triggering an event.");
 		    res_temp.trigger();
-		    etimer_set(&e_timer, CLOCK_SECOND * 4);
 	    }
     }  
 

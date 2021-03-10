@@ -6,7 +6,7 @@
 
 // Log configuration 
 #include "sys/log.h"
-#define LOG_MODULE "Temperature Sensor"
+#define LOG_MODULE "Temperature"
 #define LOG_LEVEL LOG_LEVEL_DBG
 
 #define MIN_TEMP 17
@@ -21,7 +21,7 @@ static void res_event_handler(void);
 
 // Resource definition
 EVENT_RESOURCE(res_temp,
-         "title=\"Temperature sensor\";rt=\"temperature\";if=\"sensor\";obs",
+         "title=\"Temperature sensor\";rt=\"temp\";if=\"sensor\";obs",
          res_get_handler,
          NULL,
          NULL,
@@ -32,7 +32,7 @@ static void update_temp() {
     strcpy(room, "Example room");
     temp = (rand() % (MAX_TEMP - MIN_TEMP + 1)) + MIN_TEMP;
     sprintf(temp_s, "%d", temp);
-    LOG_DBG("Room: %s \t Temperature: %d\n", room, temp_s);
+    LOG_DBG("Room: %s \t Temperature: %s\n", room, temp_s);
 }
 
 static void res_get_handler(coap_message_t *request, coap_message_t *response, uint8_t *buffer, uint16_t preferred_size, int32_t *offset) {
@@ -43,16 +43,16 @@ static void res_get_handler(coap_message_t *request, coap_message_t *response, u
         LOG_DBG("GET received.\n");
     }
 
-    unsigned int accept = -1;
+    unsigned int accept = APPLICATION_JSON;
     coap_get_header_accept(request, &accept);
 
     if(accept == APPLICATION_JSON) {
         coap_set_header_content_format(response, APPLICATION_JSON);
 
         LOG_INFO("Composing message...\n");
-        strcpy(msg, "{\"Room\": \"");
+        strcpy(msg, "{\"room\": \"");
         strcat(msg, room);
-        strcat(msg, "\", \"Temp\": \"");
+        strcat(msg, "\", \"temp\": \"");
         strcat(msg, temp_s);
         strcat(msg, "\"}\n");
 

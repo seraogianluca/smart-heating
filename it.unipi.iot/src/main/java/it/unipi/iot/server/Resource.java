@@ -2,27 +2,30 @@ package it.unipi.iot.server;
 
 public class Resource {
 	private String name;
-	private String valueKey;
+	private String type;
 	private String address;
-	private String path;
 	private boolean observable = false;
 	
-	public Resource(String name, String valueKey, boolean observable) {
+	public Resource(String name, String type, String address) {
 		this.name = name;
-		this.valueKey = valueKey;
-		this.observable = observable;
+		this.type = type;
+		this.address = address;
 	}
 	
 	public String getName() {
 		return name;
 	}
 	
-	public String getValueKey() {
-		return valueKey;
+	public String getType() {
+		return type;
 	}
 	
 	public String getCoapURI(){
-		return "coap://[" + address + "]:5683"+ path;
+		return "coap://[" + address + "]:5683/"+ name;
+	}
+	
+	public void setObservable(boolean observable) {
+		this.observable = observable;
 	}
 	
 	public boolean isObservable() {

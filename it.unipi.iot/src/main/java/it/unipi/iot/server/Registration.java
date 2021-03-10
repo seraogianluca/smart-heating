@@ -16,8 +16,9 @@ public class Registration extends CoapResource {
 		exchange.accept();
 		
 		InetAddress source = exchange.getSourceAddress();
-		System.out.println(source.getHostAddress());
-		CoapClient client = new CoapClient("coap://[" + source.getHostAddress() + "]:5683/.well-known/core");
+		String sourceAddr = source.getHostAddress();
+		System.out.println("Source address: " + sourceAddr);
+		CoapClient client = new CoapClient("coap://[" + sourceAddr + "]:5683/.well-known/core");
 		CoapResponse response = client.get();
 		
 		String code = response.getCode().toString();
@@ -30,16 +31,23 @@ public class Registration extends CoapResource {
 		System.out.println("Payload: " + responseText);
 		
 		String[] resources = responseText.split(",");
-		for(String resource:resources) {
+		for(int i = 1; i < resources.length; i++) {
 			boolean observable = false;
-			String[] parameters = resource.split(";");
-			// </temp>;title="Temperature sensor";rt="temperature";if="sensor";obs
-			String name = parameters[0].substring(parameters[0].indexOf("/") + 1, parameters[0].indexOf(">"));
+			String[] resource = resources[i].split(";");
+			// </temp>;title="Temperature sensor";rt="temp";if="sensor";obs
 			
-			if(resource.contains("obs")) {
+			String name = resource[0].substring(resource[0].indexOf("/") + 1, resource[0].indexOf(">"));
+			String type = resource[2].substring(resource[2].indexOf("\"") + 1, resource[2].length() - 1);
+			
+			Resource res = new Resource(name, type, sourceAddr);
+			
+			if(resource.length > 3) {
+				System.out.println("The resource is observable.");
 				observable = true;
+				res.setObservable(observable);
+				Observer observer = new Observer(res);
+				observer.observing();
 			}
-			
 		}
 		
 	}

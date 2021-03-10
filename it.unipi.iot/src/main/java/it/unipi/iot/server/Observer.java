@@ -4,12 +4,11 @@ import org.json.JSONObject;
 
 import org.eclipse.californium.core.CoapClient;
 import org.eclipse.californium.core.CoapHandler;
-import org.eclipse.californium.core.CoapObserveRelation;
 import org.eclipse.californium.core.CoapResponse;
+import org.eclipse.californium.core.coap.MediaTypeRegistry;
 
 public class Observer extends CoapClient {
 	private Resource resource;
-	private CoapObserveRelation observe;
 	
 	public Observer(Resource resource) {
 		super(resource.getCoapURI());
@@ -17,24 +16,21 @@ public class Observer extends CoapClient {
 	}
 	
 	public void observing() {
-		observe = this.observe(new CoapHandler() {
+		this.observeAndWait(new CoapHandler() {
 
-			@Override
 			public void onLoad(CoapResponse response) {
 				try {
 					JSONObject responseJSON = new JSONObject(response.getResponseText());
-					System.out.println(responseJSON.toString());
+					System.out.print("room: " + responseJSON.getString("room") + " ");
+					System.out.print(resource.getType() + ": " + responseJSON.getString(resource.getType()) + "\n");
 				} catch(Exception e) {
 					e.printStackTrace();
 				}
-				
 			}
 
-			@Override
 			public void onError() {
 				System.err.println("Observing failed.\n");		
 			}
-			
-		});
+		}, MediaTypeRegistry.APPLICATION_JSON);
 	}
 }
