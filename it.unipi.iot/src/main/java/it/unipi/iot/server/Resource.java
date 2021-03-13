@@ -21,7 +21,7 @@ public class Resource {
 	}
 	
 	public String getCoapURI(){
-		return "coap://[" + address + "]:5683/"+ name;
+		return "coap://[" + address + "]:5683/"+ type;
 	}
 	
 	public void setObservable(boolean observable) {

@@ -21,7 +21,7 @@ public class Observer extends CoapClient {
 			public void onLoad(CoapResponse response) {
 				try {
 					JSONObject responseJSON = new JSONObject(response.getResponseText());
-					System.out.print("room: " + responseJSON.getString("room") + " ");
+					System.out.print("type: " + resource.getName() + " ");
 					System.out.print(resource.getType() + ": " + responseJSON.getString(resource.getType()) + "\n");
 				} catch(Exception e) {
 					e.printStackTrace();

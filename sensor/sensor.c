@@ -14,9 +14,10 @@
 #define SERVER_EP "coap://[fd00::1]:5683"
 
 // Resources
-extern coap_resource_t res_temp;
+extern coap_resource_t res_temp, res_hum;
 
-static struct etimer e_timer;
+static struct etimer timer;
+static int to_trigger = 0;
 char *reg_service_url = "/register";
 bool registered = false;
 
@@ -48,6 +49,7 @@ PROCESS_THREAD(node, ev, data) {
 
     // Resources activation
     coap_activate_resource(&res_temp, "temp");
+    coap_activate_resource(&res_hum, "hum");
 
     // Registration
     LOG_INFO("Registering...\n");
@@ -62,14 +64,19 @@ PROCESS_THREAD(node, ev, data) {
 
     LOG_INFO("Registered.\n");
     
+    etimer_set(&timer, CLOCK_SECOND * 2);
     while(1) {
-        etimer_set(&e_timer, CLOCK_SECOND * 4);
-        PROCESS_WAIT_EVENT();
-
-        if(ev == PROCESS_EVENT_TIMER && data == &e_timer) {
-            LOG_INFO("Triggering an event.");
-		    res_temp.trigger();
-	    }
+        PROCESS_WAIT_EVENT_UNTIL(ev == PROCESS_EVENT_TIMER);
+        if(to_trigger == 0) {
+            LOG_INFO("Triggering temperature sensor.\n");
+            res_temp.trigger();
+        } else {
+            LOG_INFO("Triggering humidity sensor.\n");
+            res_hum.trigger();
+        }
+		
+        to_trigger = (to_trigger + 1) % 2;
+	    etimer_reset(&timer);
     }  
 
     PROCESS_END();
