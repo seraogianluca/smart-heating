@@ -59,7 +59,7 @@ public class Registration extends CoapResource {
 			
 			CoapClient cl = new CoapClient(res.getCoapURI());
 			//CoapResponse resp = cl.post("status=on", MediaTypeRegistry.TEXT_PLAIN);
-			CoapResponse resp = cl.post("{\"status\":\"on\"}", MediaTypeRegistry.APPLICATION_JSON);
+			CoapResponse resp = cl.post("{\"status\":\"max\"}", MediaTypeRegistry.APPLICATION_JSON);
 			System.out.println("Response: " + resp.getCode().toString());
 		}
 		

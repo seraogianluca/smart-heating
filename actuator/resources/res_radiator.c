@@ -74,14 +74,16 @@ static void res_post_put_handler(coap_message_t *request, coap_message_t *respon
     coap_get_header_accept(request, &post_accept);
 
     if(post_accept == APPLICATION_JSON) {
+        const uint8_t **msg;
         char * new_status;
         int payload_len = request->payload_len;
+        
         LOG_DBG("The payload len is: %d\n", payload_len);
 
-        const uint8_t **msg = malloc(request->payload_len);
+        msg = malloc(request->payload_len);
         len = coap_get_payload(request, msg);
-
         LOG_DBG("Message received: %s.\n", (char *)*msg);
+        
         if(len > 0) {
             // {"status":"on"}
             size_t size = 0;
@@ -92,9 +94,9 @@ static void res_post_put_handler(coap_message_t *request, coap_message_t *respon
             if(size == 0) {
                 LOG_DBG("Size equal to 0.\n");
             } else {
-                new_status = malloc(size + 1);
+                new_status = malloc(size);
                 strncpy(new_status, start, size);
-                new_status[size+1] = '\0';
+                new_status[size] = '\0';
             }
 
             LOG_DBG("Actual stauts: %s, New status: %s\n", status, new_status);
