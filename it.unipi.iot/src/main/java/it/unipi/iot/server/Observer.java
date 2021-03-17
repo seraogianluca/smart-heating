@@ -20,9 +20,16 @@ public class Observer extends CoapClient {
 
 			public void onLoad(CoapResponse response) {
 				try {
+					System.out.println("Room: " + resource.getRoom());
 					JSONObject responseJSON = new JSONObject(response.getResponseText());
-					System.out.print("type: " + resource.getName() + " ");
-					System.out.print(resource.getType() + ": " + responseJSON.getString(resource.getType()) + "\n");
+					
+					if(resource.getName().contains("actuator")) {
+						System.out.print("type: " + resource.getName() + " ");
+						System.out.print("status: " + responseJSON.getString("status") + "\n");
+					} else {
+						System.out.print("type: " + resource.getName() + " ");
+						System.out.print(resource.getType() + ": " + responseJSON.getString(resource.getType()) + "\n");
+					}					
 				} catch(Exception e) {
 					e.printStackTrace();
 				}

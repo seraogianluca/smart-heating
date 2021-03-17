@@ -1,15 +1,17 @@
 package it.unipi.iot.server;
 
 public class Resource {
-	private String name;
-	private String type;
+	private String name; //e.g. sensor, actuator
+	private String type; // e.g. temp, hum
 	private String address;
+	private String room;
 	private boolean observable = false;
 	
-	public Resource(String name, String type, String address) {
+	public Resource(String name, String type, String address, String room) {
 		this.name = name;
 		this.type = type;
 		this.address = address;
+		this.room = room;
 	}
 	
 	public String getName() {
@@ -22,6 +24,10 @@ public class Resource {
 	
 	public String getCoapURI(){
 		return "coap://[" + address + "]:5683/"+ type;
+	}
+	
+	public String getRoom() {
+		return room;
 	}
 	
 	public void setObservable(boolean observable) {
