@@ -15,7 +15,4 @@
 #undef UIP_CONF_BUFFER_SIZE 
 #define UIP_CONF_BUFFER_SIZE 240
 
-// Radiator or Dehumidifier
-#define RADIATOR 1
-
 #endif

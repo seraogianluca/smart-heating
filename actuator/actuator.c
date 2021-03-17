@@ -14,11 +14,7 @@
 #define SERVER_EP "coap://[fd00::1]:5683"
 
 // Resources
-#if RADIATOR
 extern coap_resource_t res_radiator;
-#else
-extern coap_resource_t res_dehumidifier;
-#endif
 
 extern process_event_t STATUS_CHANGED;
 
@@ -52,11 +48,7 @@ PROCESS_THREAD(node, ev, data) {
     PROCESS_BEGIN();
 
     // Resources activation
-    #if RADIATOR
     coap_activate_resource(&res_radiator, "radiator");
-    #else
-    coap_activate_resource(&res_dehumidifier, "dehumidifier");
-    #endif
 
     // Registration
     LOG_INFO("Registering...\n");
@@ -76,12 +68,7 @@ PROCESS_THREAD(node, ev, data) {
     
     while(1) {
         PROCESS_WAIT_EVENT_UNTIL(ev == STATUS_CHANGED);
-        
-        #if RADIATOR
         res_radiator.trigger();
-        #else
-        res_dehumidifier.trigger();
-        #endif
     }  
 
     PROCESS_END();
