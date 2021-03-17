@@ -64,30 +64,58 @@ static void res_get_handler(coap_message_t *request, coap_message_t *response, u
 }
 
 static void res_post_put_handler(coap_message_t *request, coap_message_t *response, uint8_t *buffer, uint16_t preferred_size, int32_t *offset) {
-    size_t len = 0;
-    const char *new_status = NULL;
+    int len = 0;
 
     if(request != NULL) {
         LOG_DBG("Post received.\n");
     }
 
-    len = coap_get_post_variable(request, "status", &new_status);
+    unsigned int post_accept = APPLICATION_JSON;
+    coap_get_header_accept(request, &post_accept);
 
-    if(len > 0) {
-        LOG_DBG("Actual stauts: %s, New status: %s\n", status, new_status);
-        strcpy(status, new_status);
+    if(post_accept == APPLICATION_JSON) {
+        char * new_status;
+        int payload_len = request->payload_len;
+        LOG_DBG("The payload len is: %d\n", payload_len);
 
-        if(strncmp(status, "off", len) == 0) {  
-            leds_set(LEDS_NUM_TO_MASK(LEDS_RED));
-        } else if(strncmp(status, "on", len) == 0) {
-            leds_set(LEDS_NUM_TO_MASK(LEDS_GREEN));
-        } else if(strncmp(status, "max", len) == 0) {
-            leds_set(LEDS_NUM_TO_MASK(LEDS_YELLOW));
-        }
+        const uint8_t **msg = malloc(request->payload_len);
+        len = coap_get_payload(request, msg);
 
-        coap_set_status_code(response, CHANGED_2_04);
-        process_post(&node, STATUS_CHANGED, NULL);
+        LOG_DBG("Message received: %s.\n", (char *)*msg);
+        if(len > 0) {
+            // {"status":"on"}
+            size_t size = 0;
+            const char* start = (char *)*msg + 11;
+            const char* end = (char *)*msg + payload_len - 2;
+            size = end - start;
+
+            if(size == 0) {
+                LOG_DBG("Size equal to 0.\n");
+            } else {
+                new_status = malloc(size + 1);
+                strncpy(new_status, start, size);
+                new_status[size+1] = '\0';
+            }
+
+            LOG_DBG("Actual stauts: %s, New status: %s\n", status, new_status);
+            strcpy(status, new_status);
+
+            if(strncmp(status, "off", 3) == 0) {  
+                leds_set(LEDS_NUM_TO_MASK(LEDS_RED));
+            } else if(strncmp(status, "on", 2) == 0) {
+                leds_set(LEDS_NUM_TO_MASK(LEDS_GREEN));
+            } else if(strncmp(status, "max", 3) == 0) {
+                leds_set(LEDS_NUM_TO_MASK(LEDS_YELLOW));
+            }
+
+            coap_set_status_code(response, CHANGED_2_04);
+            process_post(&node, STATUS_CHANGED, NULL);
+        } else {
+            coap_set_status_code(response, BAD_REQUEST_4_00);
+        }                                          
     } else {
-        coap_set_status_code(response, BAD_REQUEST_4_00);
+        coap_set_status_code(response, NOT_ACCEPTABLE_4_06);
+	    const char *msg = "Supported content-types:application/json";
+	    coap_set_payload(response, msg, strlen(msg));
     }
 }
