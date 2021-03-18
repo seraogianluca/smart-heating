@@ -81,6 +81,7 @@ static void res_post_put_handler(coap_message_t *request, coap_message_t *respon
         LOG_DBG("The payload len is: %d\n", payload_len);
 
         msg = malloc(request->payload_len);
+	//TODO: Check if msg is == 0 (malloc not always give memory).
         len = coap_get_payload(request, msg);
         LOG_DBG("Message received: %s.\n", (char *)*msg);
         
@@ -112,6 +113,8 @@ static void res_post_put_handler(coap_message_t *request, coap_message_t *respon
 
             coap_set_status_code(response, CHANGED_2_04);
             process_post(&node, STATUS_CHANGED, NULL);
+		
+	    //TODO: use free to clean the heap
         } else {
             coap_set_status_code(response, BAD_REQUEST_4_00);
         }                                          
