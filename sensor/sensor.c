@@ -13,6 +13,8 @@
 
 #define SERVER_EP "coap://[fd00::1]:5683"
 
+extern process_event_t RANGE_CHANGED;
+
 // Resources
 extern coap_resource_t res_temp, res_hum;
 
@@ -66,7 +68,7 @@ PROCESS_THREAD(node, ev, data) {
     
     etimer_set(&timer, CLOCK_SECOND * 2);
     while(1) {
-        PROCESS_WAIT_EVENT_UNTIL(ev == PROCESS_EVENT_TIMER);
+        PROCESS_WAIT_EVENT_UNTIL(ev == PROCESS_EVENT_TIMER || ev == RANGE_CHANGED);
         if(to_trigger == 0) {
             LOG_INFO("Triggering temperature sensor.\n");
             res_temp.trigger();
