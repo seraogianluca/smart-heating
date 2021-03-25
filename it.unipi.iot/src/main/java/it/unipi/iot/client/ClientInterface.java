@@ -15,7 +15,6 @@ public class ClientInterface {
 	private static SmartMode smartMode = SmartMode.MANUAL;
 	private static Level radiatorLevel = Level.OFF;
 	private static int temperature = 0;
-	private static boolean discovery = false;
 	
 	public enum SmartMode {
 		AUTO,
@@ -36,9 +35,15 @@ public class ClientInterface {
 	
 	public static void main(String[] args) {
 		try {
+			out.println("+++++++++++++++++++ SMART HEATING CLIENT +++++++++++++++++++");
 			out.println("Starting coap server at port 5683...");
 			server = new Server(5683);
-			server.start();	
+		
+			new Thread() {
+				public void run() {
+					server.start();
+				}
+			}.start();
 			
 			while(true) {
 				input = new BufferedReader(new InputStreamReader(System.in));
@@ -46,43 +51,36 @@ public class ClientInterface {
 				help();
 				prompt();
 				
-				int cmd = Integer.parseInt(input.readLine());
-				while(cmd < 1 || cmd > 6) {
-					out.println("Please insert a valid command.\n");
-					prompt();
-					cmd = Integer.parseInt(input.readLine());
-				}
+				String cmd = input.readLine();
 				
 				switch(cmd) {
-					case 1: 
+					case "!status": 
 						showStatus();
 						break;
-					case 2: 
-						showTemperature();
-						break;
-					case 3: 
+					case "!setstatus": 
 						setTemperature();
 						break;
-					case 4: 
+					case "!temp": 
+						showTemperature();
+						break;
+					case "!mode": 
 						setMode();
 						break;
-					case 5: 
-						register();
+					case "!addroom": 
+						addRoom();
 						break;
-					case 6:
+					case "!shutdown":
 						shutDown();
 						break;
+					default:
+						out.println("Please insert a valid command.");
 				}
 				
-				if(cmd == 6) break;
+				if(cmd.contains("!shutdown")) break;
 			}
 			
 			out.println("Bye...");
-			
-		} catch(NumberFormatException e) {
-			out.println("Invalid command.\n");
-			server.stop();
-			server.destroy();
+			input.close();
 		} catch (IOException e) {
 			server.stop();
 			server.destroy();
@@ -91,68 +89,15 @@ public class ClientInterface {
 		
 	}
 	
-	public static void addResources(String sourceAddress, String resources) {
-		String[] resourcesText = resources.split(",");
-		boolean observable;
-		
-		for(int i = 1; i < resourcesText.length; i++) {
-			observable = false;
-			
-			// </temp>;title="Temperature sensor";rt="temp";if="sensor";obs
-			String[] resourceText = resourcesText[i].split(";");
-			String name = resourceText[3].substring(resourceText[3].indexOf("\"") + 1, 
-													resourceText[3].length() - 1);
-			String type = resourceText[2].substring(resourceText[2].indexOf("\"") + 1,
-													resourceText[2].length() - 1);
-			
-			System.out.println("Resource found: " + name + " " + type);
-			System.out.println("Insert room name:");
-			prompt();
-			
-			String room;
-			try {
-				room = input.readLine();
-			} catch (IOException e) {
-				return;
-			}
-			
-			Resource resource = null;
-			if(name.contains("actuator")) {
-				resource = new Actuator(name, type, sourceAddress, room);
-			} else {
-				resource = new Sensor(name, type, sourceAddress, room);
-			}
-				
-			if(resourceText.length > 3) {
-				System.out.println("The resource is observable.");
-				observable = true;
-				resource.setObservable(observable);
-				
-				if(name.contains("actuator")) {
-					Actuator actuator = (Actuator)resource;
-					actuator.observing();
-				} else {
-					Sensor sensor = (Sensor)resource;
-					sensor.observing();
-				}
-			}
-				
-			ResourcesHandler df = ResourcesHandler.getInstance();
-			df.addDevice(room, resource);
-		}
-		
-		discovery = false;
-	}
-	
 	private static void help() {
-		out.print("Choose an option:\n" +
-				  "\n" +
-				  "1) Show status.\n" +
-				  "2) Show temperature.\n" +
-				  "3) Set temperature.\n" +
-				  "4) Set mode.\n" +
-				  "5) Connect a new device.\n" +
-				  "6) Shut down.\n");
+		out.print("------------------- Choose an option -------------------\n" 		+
+				  "\n" 																+
+				  "!status - show radiators status.\n" 								+
+				  "!setstatus - set radiators temperature.\n" 						+
+				  "!temp - show rooms temperature.\n" 								+
+				  "!mode - set system mode.\n" 										+
+				  "!addroom - assign a room to a device.\n" 									+
+				  "!shutdown - shut down the system.\n");
 	}
 	
 	private static void prompt() {
@@ -160,28 +105,36 @@ public class ClientInterface {
 	}
 	
 	private static void showStatus() {
-		
+		out.println("------------------- Radiators Status -------------------");
+		ResourcesHandler rh = ResourcesHandler.getInstance();
+		rh.getRadiatorsStatus();
+		out.println("--------------------------------------------------------");
 	}
 	
 	private static void showTemperature() {
-		out.println("Temperature: " + temperature);
+		out.println("------------------- House Temperature -------------------");
+		ResourcesHandler rh = ResourcesHandler.getInstance();
+		temperature = rh.getTemperature();
+		out.println("Average house temperature: " + temperature);
+		out.println("---------------------------------------------------------");
 	}
 	
 	private static void setTemperature() throws IOException {
+		out.println("------------------- Set Temperature -------------------");
 		if(smartMode == SmartMode.AUTO) {
 			out.println("Heating system into auto mode, switch to manual mode to set temperature level.");
 		} else {
-			out.println("Set temperature level (OFF, ECO, COMFORT):");
+			out.println("Set temperature level (off, eco, comfort):");
 			prompt();
 			String level = input.readLine();
-			switch(level) {
-				case "OFF": 
+			switch(level.toLowerCase()) {
+				case "off": 
 					radiatorLevel = Level.OFF;
 					break;
-				case "ECO":
+				case "eco":
 					radiatorLevel = Level.ECO;
 					break;
-				case "COMFORT":
+				case "comfort":
 					radiatorLevel = Level.COMFORT;
 					break;
 				default:
@@ -190,38 +143,65 @@ public class ClientInterface {
 			
 			ResourcesHandler rh = ResourcesHandler.getInstance();
 			rh.setRadiatorsStatus(radiatorLevel.label);
+			out.println("Success.");
+			out.println("-------------------------------------------------------");
 		}
 	}
 	
 	private static void setMode() throws IOException, NumberFormatException {
-			out.println("Actual mode: " + smartMode.toString());
-			out.print("Insert new mode (AUTO, MANUAL):");
-			prompt();
-			String userMode = input.readLine();
+		out.println("------------------- Set Mode -------------------");
+		out.println("Actual mode: " + smartMode.toString());
+		out.print("Insert new mode (auto, manual):");
+		prompt();
+		String userMode = input.readLine();
 			
-			switch(userMode) {
-				case "AUTO": 
-					out.print("Set desired temperature: ");
-					prompt();
-					int temp = Integer.parseInt(input.readLine());
-					temperature = temp;
-					break;
-				case "MANUAL":
-					smartMode = SmartMode.MANUAL;
-					setTemperature();
-					break;
-				default:
-					out.println("Please insert a valid mode.");
-				
-			}
+		switch(userMode.toLowerCase()) {
+			case "auto": 
+				out.print("Set desired temperature: ");
+				prompt();
+				temperature = Integer.parseInt(input.readLine());
+				break;
+			case "manual":
+				smartMode = SmartMode.MANUAL;
+				setTemperature();
+				break;
+			default:
+				out.println("Please insert a valid mode.");
+		}
+		out.println("------------------------------------------------");
 	}
 	
-	private static void register() {
-		discovery = true;
+	private static void addRoom() throws IOException {
+		out.println("------------------- Assign a room -------------------");
+		out.println("Insert a device type (radiator, temp):");
+		prompt();
+		String type = input.readLine();
 		
-		while(discovery) {
-			server.registration();
+		if(!type.equalsIgnoreCase("radiator") &&
+		   !type.equalsIgnoreCase("temp")) {
+			out.println("Device type not valid.");
+			out.println("-----------------------------------------------------");
+			return;
 		}
+		
+		ResourcesHandler rh = ResourcesHandler.getInstance();
+		rh.deviceList(type);
+		
+		out.println("Insert a valid device address:");
+		prompt();
+		String address = input.readLine();
+		
+		out.println("Insert a room name:");
+		prompt();
+		String room = input.readLine();
+		
+		if(rh.addDeviceToRoom(address, room)) {
+			out.println("Success.");
+		} else {
+			out.println("Device address not valid.");
+		}
+		
+		out.println("-----------------------------------------------------");
 	}
 	
 	private static void shutDown() {

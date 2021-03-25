@@ -1,4 +1,4 @@
-package it.unipi.iot.server;
+package it.unipi.iot.devices;
 
 import org.eclipse.californium.core.CoapHandler;
 import org.eclipse.californium.core.CoapResponse;
@@ -8,8 +8,8 @@ import org.json.JSONObject;
 public class Actuator extends Resource {
 	private String status;
 
-	public Actuator(String name, String type, String address, String room) {
-		super(name, type, address, room);
+	public Actuator(String name, String type, String address) {
+		super(name, type, address);
 	}
 	
 	public String getStatus() {

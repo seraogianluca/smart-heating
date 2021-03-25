@@ -1,4 +1,4 @@
-package it.unipi.iot.server;
+package it.unipi.iot.devices;
 
 import org.eclipse.californium.core.CoapClient;
 import org.eclipse.californium.core.CoapResponse;
@@ -14,12 +14,12 @@ public class Resource {
 	protected boolean observable = false;
 	
 	
-	public Resource(String name, String type, String address, String room) {
+	public Resource(String name, String type, String address) {
 		this.name = name;
 		this.type = type;
 		this.address = address;
-		this.room = room;
 		this.client = new CoapClient("coap://[" + this.address + "]:5683/"+ this.type);
+		room = null;
 	}
 	
 	public String getName() {
@@ -30,8 +30,12 @@ public class Resource {
 		return type;
 	}
 	
-	public String getCoapURI(){
-		return "coap://[" + address + "]:5683/"+ type;
+	public String getAddress() {
+		return address;
+	}
+	
+	public void setRoom(String room) {
+		this.room = room;
 	}
 	
 	public String getRoom() {
@@ -52,8 +56,10 @@ public class Resource {
 	}
 	
 	public String toString() {
-		return "Device: " + name + "(" + type + ") " +
-						 "Address: " + address +
-						 "Room: " + room;
+		String device = "Device: " + type +
+				   		"\nType: " + name +
+				   		"\nAddress: " + address +
+				   		"\nRoom: " + room;
+		return device; 
 	}
 }

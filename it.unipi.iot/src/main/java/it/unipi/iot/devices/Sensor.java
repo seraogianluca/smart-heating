@@ -1,4 +1,4 @@
-package it.unipi.iot.server;
+package it.unipi.iot.devices;
 
 import org.eclipse.californium.core.CoapHandler;
 import org.eclipse.californium.core.CoapResponse;
@@ -11,8 +11,8 @@ public class Sensor extends Resource {
 	private int inserted = 0;
 	private int[] values;
 	
-	public Sensor(String name, String type, String address, String room) {
-		super(name, type, address, room);
+	public Sensor(String name, String type, String address) {
+		super(name, type, address);
 		values = new int[num_values];
 	}
 	
