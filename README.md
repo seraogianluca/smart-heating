@@ -1,1 +1,6 @@
-# smart-heating
+# Smart Heating System
+The project aims to develop a complete IoT system referring to the home automation use case. The system has a set of sensors to collect data and actuators for remote control. Sensors and actuators expose their functionalities through the CoAP protocol. Moreover, it has a "cloud" application that interacts with the sensors/actuators to offer certain functionalities. IoT devices register to the cloud application at bootstrap. The cloud application has a command-line interface to show the data collected and allow the user to change actuators status. The cloud application is developed using [Californium](https://github.com/eclipse/californium). The IoT devices are implemented exploiting the [Contiki-NG](https://github.com/contiki-ng/contiki-ng) operating system. 
+
+The smart heating system is composed of:
+- **Temperature** and **humidity** sensors implemented as CoAP observable resources. They give periodic measurements to the observer.
+- **Radiators** implemented as CoAP resources. It is possible to set three different states: off, on, max. Each status corresponds to a led on the cooja mote (off = red, on = green, max = yellow).
