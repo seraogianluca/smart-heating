@@ -92,11 +92,11 @@ public class ClientInterface {
 	private static void help() {
 		out.print("------------------- Choose an option -------------------\n" 		+
 				  "\n" 																+
-				  "!status - show radiators status.\n" 								+
+				  "!status - show system status.\n" 								+
 				  "!setstatus - set radiators temperature.\n" 						+
-				  "!temp - show rooms temperature.\n" 								+
+				  "!temp - house temperature.\n" 									+
 				  "!mode - set system mode.\n" 										+
-				  "!addroom - assign a room to a device.\n" 									+
+				  "!addroom - assign a device to a room.\n" 						+
 				  "!shutdown - shut down the system.\n");
 	}
 	
@@ -105,18 +105,18 @@ public class ClientInterface {
 	}
 	
 	private static void showStatus() {
-		out.println("------------------- Radiators Status -------------------");
 		ResourcesHandler rh = ResourcesHandler.getInstance();
+		out.println("------------------- Radiators Status -------------------");
 		rh.getRadiatorsStatus();
-		out.println("--------------------------------------------------------");
+		out.println("------------------- Sensors Status -------------------");
+		rh.getSensorsStatus();
 	}
 	
 	private static void showTemperature() {
 		out.println("------------------- House Temperature -------------------");
 		ResourcesHandler rh = ResourcesHandler.getInstance();
 		temperature = rh.getTemperature();
-		out.println("Average house temperature: " + temperature);
-		out.println("---------------------------------------------------------");
+		out.println("The average house temperature is " + temperature);
 	}
 	
 	private static void setTemperature() throws IOException {
@@ -124,6 +124,7 @@ public class ClientInterface {
 		if(smartMode == SmartMode.AUTO) {
 			out.println("Heating system into auto mode, switch to manual mode to set temperature level.");
 		} else {
+			ResourcesHandler rh = ResourcesHandler.getInstance();
 			out.println("Set temperature level (off, eco, comfort):");
 			prompt();
 			String level = input.readLine();
@@ -133,19 +134,41 @@ public class ClientInterface {
 					break;
 				case "eco":
 					radiatorLevel = Level.ECO;
+					rh.setTemperature(2);
 					break;
 				case "comfort":
 					radiatorLevel = Level.COMFORT;
+					rh.setTemperature(5);
 					break;
 				default:
 					out.println("Please invert a valid level.");
 			}
-			
-			ResourcesHandler rh = ResourcesHandler.getInstance();
 			rh.setRadiatorsStatus(radiatorLevel.label);
-			out.println("Success.");
-			out.println("-------------------------------------------------------");
 		}
+	}
+	
+	private static void autoMode() {
+		int house_temp = 0;
+		int delta = 0;
+		ResourcesHandler rh = ResourcesHandler.getInstance();
+		
+		out.println("------------------- Auto Mode -------------------");
+		out.println("Checking house temperature...");
+		house_temp = rh.getTemperature();
+		out.println("House temperature: " + house_temp);
+		out.println("Desired temperature: " + temperature);
+		
+		delta = Math.abs(house_temp - temperature);
+		if(delta == 0) {
+			radiatorLevel = Level.OFF;
+		} else if(delta < 5) {
+			radiatorLevel = Level.ECO;
+		} else {
+			radiatorLevel = Level.COMFORT;
+		}	
+		
+		rh.setRadiatorsStatus(radiatorLevel.label);
+		rh.setTemperature(delta);
 	}
 	
 	private static void setMode() throws IOException, NumberFormatException {
@@ -156,10 +179,12 @@ public class ClientInterface {
 		String userMode = input.readLine();
 			
 		switch(userMode.toLowerCase()) {
-			case "auto": 
+			case "auto":
+				smartMode = SmartMode.AUTO;
 				out.print("Set desired temperature: ");
 				prompt();
 				temperature = Integer.parseInt(input.readLine());
+				autoMode();
 				break;
 			case "manual":
 				smartMode = SmartMode.MANUAL;
@@ -168,7 +193,6 @@ public class ClientInterface {
 			default:
 				out.println("Please insert a valid mode.");
 		}
-		out.println("------------------------------------------------");
 	}
 	
 	private static void addRoom() throws IOException {
@@ -180,7 +204,6 @@ public class ClientInterface {
 		if(!type.equalsIgnoreCase("radiator") &&
 		   !type.equalsIgnoreCase("temp")) {
 			out.println("Device type not valid.");
-			out.println("-----------------------------------------------------");
 			return;
 		}
 		
@@ -200,8 +223,6 @@ public class ClientInterface {
 		} else {
 			out.println("Device address not valid.");
 		}
-		
-		out.println("-----------------------------------------------------");
 	}
 	
 	private static void shutDown() {

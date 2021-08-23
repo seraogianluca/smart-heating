@@ -45,16 +45,12 @@ public class ResourcesHandler {
 		
 		for(Actuator device: devices) {
 			response = device.post(payload);
-			
-			System.out.println(device.toString() +
-					           "\nResponse: " + response);
+			printInfo(device, "Response: " + response);
 			
 			if(response.startsWith("2")) {
-				
 				try {
 					Thread.sleep(1000);
 				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 				
@@ -72,9 +68,28 @@ public class ResourcesHandler {
 		}
 		
 		for(Actuator device: devices) {
-			System.out.println(device.toString() + 
-							   "\nStatus: " + device.getStatus());
+			printInfo(device, "Status: " + device.getStatus());
+		}
+	}
+	
+	public void getSensorsStatus() {
+		Collection<Sensor> temp_devices = temp_sensors.values();
+		Sensor hum_sensor;
+
+		if(temp_devices.size() == 0) {
+			System.out.println("No available devices.");
+			return;
+		}
+		
+		for(Sensor device: temp_devices) {
+			hum_sensor = hum_sensors.get(device.getAddress());
+			if(hum_sensor != null) {
+				printInfo(device, "Temperature: " + device.getValue() +
+								  "\nHumidity: " + hum_sensor.getValue());
+			} else {
+				printInfo(device, "Temperature: " + device.getValue());
 			}
+		}
 	}
 	
 	public int getTemperature() {
@@ -82,7 +97,6 @@ public class ResourcesHandler {
 		int num_sensors;
 		int temp;
 		Collection<Sensor> temp_devices = temp_sensors.values();
-		Sensor hum_sensor;
 		
 		num_sensors = temp_devices.size();
 		if(num_sensors == 0) {
@@ -93,31 +107,33 @@ public class ResourcesHandler {
 		for(Sensor device: temp_devices) {
 			temp = device.getValue();
 			avg += temp;
-			
-			System.out.println(device.toString() +
-					   		   "\nTemperature: " + temp);
-			
-			hum_sensor = hum_sensors.get(device.getAddress());
-			if(hum_sensor != null) {
-				System.out.println("Humidity: " + hum_sensor.getValue());
-			}
 		}
 		
-		avg /= num_sensors;
-		
+		avg /= num_sensors;		
 		return avg;
+	}
+	
+	public void setTemperature(int delta) {
+		String response;
+		String payload = "{\"delta\":\"" + delta + "\"}";
+		Collection<Sensor> devices = temp_sensors.values();
+		
+		for(Sensor device: devices) {
+			response = device.post(payload);
+			printInfo(device, "Response: " + response);
+		}
 	}
 	
 	public void deviceList(String type) {
 		if(type.contains("radiator")) {
 			Collection<Actuator> devices = radiators.values();
 			for(Actuator device: devices) {
-				System.out.println(device.toString());
+				printInfo(device, null);
 			}
 		} else {
 			Collection<Sensor> devices = temp_sensors.values();
 			for(Sensor device: devices) {
-				System.out.println(device.toString());
+				printInfo(device, null);
 			}
 		}
 	}
@@ -131,20 +147,26 @@ public class ResourcesHandler {
 		if(radiators.containsKey(address)) {
 			Actuator device = radiators.get(address);
 			device.setRoom(room);
-			System.out.println(device.toString());
+			printInfo(device, null);
 		} else if (temp_sensors.containsKey(address)) {
 			Sensor device = temp_sensors.get(address);
 			device.setRoom(room);
-			System.out.println(device.toString());
+			printInfo(device, null);
 			
 			if(hum_sensors.containsKey(address)) {
 				device = hum_sensors.get(address);
 				device.setRoom(room);
-				System.out.println(device.toString());
+				printInfo(device, null);
 			}
 		}
 		
 		return true;
 	}
 	
+	private void printInfo(Resource device, String additional) {
+		System.out.println("----- Resource info -----");
+		System.out.println(device.toString());
+		if(additional != null)
+			System.out.println(additional);
+	}
 }

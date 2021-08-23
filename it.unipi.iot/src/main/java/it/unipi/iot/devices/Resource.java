@@ -19,7 +19,7 @@ public class Resource {
 		this.type = type;
 		this.address = address;
 		this.client = new CoapClient("coap://[" + this.address + "]:5683/"+ this.type);
-		room = null;
+		this.room = "No room assigned.";
 	}
 	
 	public String getName() {
@@ -56,8 +56,8 @@ public class Resource {
 	}
 	
 	public String toString() {
-		String device = "Device: " + type +
-				   		"\nType: " + name +
+		String device = "Device: " + name +
+				   		"\nType: " + type +
 				   		"\nAddress: " + address +
 				   		"\nRoom: " + room;
 		return device; 

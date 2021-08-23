@@ -14,7 +14,7 @@ extern struct process node;
 
 static unsigned int accept = -1;
 static int min_temp = 17;
-static int max_temp = 19;
+static int max_temp = 20;
 static int temp = 0;
 
 static void res_get_handler(coap_message_t *request, coap_message_t *response, uint8_t *buffer, uint16_t preferred_size, int32_t *offset);
