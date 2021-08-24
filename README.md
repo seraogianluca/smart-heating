@@ -1,6 +1,12 @@
-# Smart Heating System
-The project aims to develop a complete IoT system referring to the home automation use case. The system has a set of sensors to collect data and actuators for remote control. Sensors and actuators expose their functionalities through the CoAP protocol. Moreover, it has a "cloud" application that interacts with the sensors/actuators to offer certain functionalities. IoT devices register to the cloud application at bootstrap. The cloud application has a command-line interface to show the data collected and allow the user to change actuators status. The cloud application is developed using [Californium](https://github.com/eclipse/californium). The IoT devices are implemented exploiting the [Contiki-NG](https://github.com/contiki-ng/contiki-ng) operating system. 
+The project aims to develop a complete IoT system referring to the home automation use case. The system has sensors to collect data and actuators for remote control, and they expose their functionalities through the CoAP protocol. Moreover, the system has a cloud application that interacts with the sensors/actuators to offer certain functionalities. IoT devices register to the cloud application at bootstrap. The cloud application has a command-line interface to show the collected data and allows the user to change the status of actuators. The cloud application is developed using Californium. The IoT devices are implemented exploiting the Contiki-NG operating system.
 
-The smart heating system is composed of:
-- **Temperature** and **humidity** sensors implemented as CoAP observable resources. They give periodic measurements to the observer.
-- **Radiators** implemented as CoAP resources. It is possible to set three different states: off, on, max. Each status corresponds to a led on the cooja mote (off = red, on = green, max = yellow).
+# Setup
+It is preferable to clone this repository into the Contiki-NG installation folder.
+
+To run the project:
+- Open the `smart-heating.csc` simulation into cooja and start the simulation. Compile and create all the cooja mote. The simulation contains an `rpl-border-router`, two sensor nodes and two actuators. 
+- Connect the device network with the "external" network by executing the following command inside the `rpl-border-router` folder:
+```
+make TARGET=cooja connect-router-cooja
+```
+- Compile and run the java application as you prefer.
