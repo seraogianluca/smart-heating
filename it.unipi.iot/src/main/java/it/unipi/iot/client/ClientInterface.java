@@ -15,6 +15,7 @@ public class ClientInterface {
 	private static SmartMode smartMode = SmartMode.MANUAL;
 	private static Level radiatorLevel = Level.OFF;
 	private static int temperature = 0;
+	private static int humidity = 0;
 	
 	public enum SmartMode {
 		AUTO,
@@ -81,7 +82,7 @@ public class ClientInterface {
 			
 			out.println("Bye...");
 			input.close();
-		} catch (IOException e) {
+		} catch (Exception e) {
 			server.stop();
 			server.destroy();
 			e.printStackTrace();
@@ -116,7 +117,9 @@ public class ClientInterface {
 		out.println("------------------- House Temperature -------------------");
 		ResourcesHandler rh = ResourcesHandler.getInstance();
 		temperature = rh.getTemperature();
+		humidity = rh.getHumidity();
 		out.println("The average house temperature is " + temperature);
+		out.println("The average house humidity is " + humidity);
 	}
 	
 	private static void setTemperature() throws IOException {
@@ -125,6 +128,7 @@ public class ClientInterface {
 			out.println("Heating system into auto mode, switch to manual mode to set temperature level.");
 		} else {
 			ResourcesHandler rh = ResourcesHandler.getInstance();
+			int temp_delta = 0;
 			out.println("Set temperature level (off, eco, comfort):");
 			prompt();
 			String level = input.readLine();
@@ -134,16 +138,18 @@ public class ClientInterface {
 					break;
 				case "eco":
 					radiatorLevel = Level.ECO;
-					rh.setTemperature(2);
+					temp_delta = 2;
 					break;
 				case "comfort":
 					radiatorLevel = Level.COMFORT;
-					rh.setTemperature(5);
+					temp_delta = 5;
 					break;
 				default:
 					out.println("Please invert a valid level.");
 			}
 			rh.setRadiatorsStatus(radiatorLevel.label);
+			out.println("Setting new temperature and humidity.");
+			rh.setTemperature(temp_delta);
 		}
 	}
 	
@@ -168,6 +174,7 @@ public class ClientInterface {
 		}	
 		
 		rh.setRadiatorsStatus(radiatorLevel.label);
+		out.println("Setting new temperature and humidity.");
 		rh.setTemperature(delta);
 	}
 	
@@ -197,12 +204,12 @@ public class ClientInterface {
 	
 	private static void addRoom() throws IOException {
 		out.println("------------------- Assign a room -------------------");
-		out.println("Insert a device type (radiator, temp):");
+		out.println("Insert a device type (radiator, sensor):");
 		prompt();
 		String type = input.readLine();
 		
 		if(!type.equalsIgnoreCase("radiator") &&
-		   !type.equalsIgnoreCase("temp")) {
+		   !type.equalsIgnoreCase("sensor")) {
 			out.println("Device type not valid.");
 			return;
 		}

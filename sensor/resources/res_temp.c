@@ -42,7 +42,7 @@ static void res_get_handler(coap_message_t *request, coap_message_t *response, u
     char msg[COAP_MAX_CHUNK_SIZE];
 
     if(request != NULL) {
-        LOG_DBG("Request received.\n");
+        LOG_DBG("Get received.\n");
     }
  
     coap_get_header_accept(request, &accept);
@@ -78,7 +78,7 @@ static void res_post_put_handler(coap_message_t *request, coap_message_t *respon
 
     if(post_accept == APPLICATION_JSON) {
         const uint8_t **msg;
-        char * delta;
+        char *delta;
         int payload_len = request->payload_len;
         
         LOG_DBG("The payload len is: %d\n", payload_len);
@@ -101,6 +101,7 @@ static void res_post_put_handler(coap_message_t *request, coap_message_t *respon
 
             if(size == 0) {
                 LOG_DBG("Size equal to 0.\n");
+                return;
             } else {
                 delta = malloc(size);
                 strncpy(delta, start, size);

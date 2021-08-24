@@ -40,11 +40,10 @@ public class ResourcesHandler {
 	
 	public void setRadiatorsStatus(String status) {
 		String response;
-		String payload = "{\"status\":\"" + status.toLowerCase() + "\"}";
 		Collection<Actuator> devices = radiators.values();
 		
 		for(Actuator device: devices) {
-			response = device.post(payload);
+			response = device.post("{\"status\":\"" + status.toLowerCase() + "\"}");
 			printInfo(device, "Response: " + response);
 			
 			if(response.startsWith("2")) {
@@ -95,7 +94,6 @@ public class ResourcesHandler {
 	public int getTemperature() {
 		int avg = 0;
 		int num_sensors;
-		int temp;
 		Collection<Sensor> temp_devices = temp_sensors.values();
 		
 		num_sensors = temp_devices.size();
@@ -105,8 +103,7 @@ public class ResourcesHandler {
 		}
 		
 		for(Sensor device: temp_devices) {
-			temp = device.getValue();
-			avg += temp;
+			avg += device.getValue();
 		}
 		
 		avg /= num_sensors;		
@@ -115,13 +112,47 @@ public class ResourcesHandler {
 	
 	public void setTemperature(int delta) {
 		String response;
-		String payload = "{\"delta\":\"" + delta + "\"}";
 		Collection<Sensor> devices = temp_sensors.values();
+		Sensor hum_sensor;
+		int hum_delta;
+		
+		if(delta == 0) {
+			// if radiators are off suppose to decrease temp
+			delta = -3;
+		}
+		
+		hum_delta = -delta;
 		
 		for(Sensor device: devices) {
-			response = device.post(payload);
-			printInfo(device, "Response: " + response);
+			response = device.post("{\"delta\":\"" + delta + "\"}");
+			System.out.println("Temperature sensor response: " + response);
+			hum_sensor = hum_sensors.get(device.getAddress());
+			
+			if(hum_sensor != null) {
+				// Increase in temp is a decrease in hum and vice versa 
+				hum_sensor.post("{\"delta\":\"" + hum_delta + "\"}");
+				System.out.println("Humidity sensor response: " + response);
+			}		
 		}
+	}
+	
+	public int getHumidity() {
+		int avg = 0;
+		int num_sensors;
+		Collection<Sensor> hum_devices = hum_sensors.values();
+		
+		num_sensors = hum_sensors.size();
+		if(num_sensors == 0) {
+			System.out.println("No available devices.");
+			return 0;
+		}
+		
+		for(Sensor device: hum_devices) {
+			avg += device.getValue();
+		}
+		
+		avg /= num_sensors;		
+		return avg;
 	}
 	
 	public void deviceList(String type) {
