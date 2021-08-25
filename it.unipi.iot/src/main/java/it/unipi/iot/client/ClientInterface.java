@@ -154,28 +154,10 @@ public class ClientInterface {
 	}
 	
 	private static void autoMode() {
-		int house_temp = 0;
-		int delta = 0;
 		ResourcesHandler rh = ResourcesHandler.getInstance();
-		
 		out.println("------------------- Auto Mode -------------------");
-		out.println("Checking house temperature...");
-		house_temp = rh.getTemperature();
-		out.println("House temperature: " + house_temp);
-		out.println("Desired temperature: " + temperature);
-		
-		delta = Math.abs(house_temp - temperature);
-		if(delta == 0) {
-			radiatorLevel = Level.OFF;
-		} else if(delta < 5) {
-			radiatorLevel = Level.ECO;
-		} else {
-			radiatorLevel = Level.COMFORT;
-		}	
-		
-		rh.setRadiatorsStatus(radiatorLevel.label);
-		out.println("Setting new temperature and humidity.");
-		rh.setTemperature(delta);
+		out.println("Setting auto mode...");
+		rh.setRadiatorsStatus(Integer.toString(temperature));
 	}
 	
 	private static void setMode() throws IOException, NumberFormatException {
