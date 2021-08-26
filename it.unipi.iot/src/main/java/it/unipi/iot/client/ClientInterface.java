@@ -94,8 +94,8 @@ public class ClientInterface {
 		out.print("------------------- Choose an option -------------------\n" 		+
 				  "\n" 																+
 				  "!status - show system status.\n" 								+
-				  "!setstatus - set radiators temperature.\n" 						+
-				  "!temp - house temperature.\n" 									+
+				  "!setstatus - set radiators status.\n" 						    +
+				  "!temp - house temperature and humidity.\n" 						+
 				  "!mode - set system mode.\n" 										+
 				  "!addroom - assign a device to a room.\n" 						+
 				  "!shutdown - shut down the system.\n");

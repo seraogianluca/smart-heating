@@ -116,7 +116,6 @@ static void res_post_put_handler(coap_message_t *request, coap_message_t *respon
                 	auto_mode = false;
                 }
             } else if(strncmp(status, "on", 2) == 0) {
-            	status[3] = '\0';
                 leds_set(LEDS_NUM_TO_MASK(LEDS_GREEN));
                 if(auto_mode) {
                   	LOG_INFO("Disabling auto mode.\n");
@@ -132,7 +131,6 @@ static void res_post_put_handler(coap_message_t *request, coap_message_t *respon
             	//if auto mode send threshold as status
             	LOG_INFO("Enabling auto mode.\n");
             	temp_threshold = atoi(status);
-            	LOG_DBG("Threshold: %d.\n", temp_threshold);
             	auto_mode = true;
             }
 

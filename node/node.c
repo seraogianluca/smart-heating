@@ -36,9 +36,9 @@ extern char status[4];
 PROCESS(node, "Node");
 AUTOSTART_PROCESSES(&node);
 
-void interval_update(int max_amount, bool increment) {
-	int delta = rand()%max_amount + 1;
-	int hum_delta = rand()%3 + 1;
+void interval_update(bool increment) {
+	int delta = rand() % 8 + 1;
+	int hum_delta = rand() % 3 + 1;
 
 	if(increment) {
 		min_temp += delta;
@@ -97,7 +97,7 @@ PROCESS_THREAD(node, ev, data) {
     LOG_INFO("Registered.\n");
     
     //set timer for sensors
-    etimer_set(&timer, CLOCK_SECOND * 2);
+    etimer_set(&timer, CLOCK_SECOND * 5);
 
     //set initial radiator status
     leds_set(LEDS_NUM_TO_MASK(LEDS_RED));
@@ -106,32 +106,25 @@ PROCESS_THREAD(node, ev, data) {
     while(1) {
         PROCESS_WAIT_EVENT_UNTIL(ev == PROCESS_EVENT_TIMER || ev == RANGE_CHANGED || ev == STATUS_CHANGED);
         if(auto_mode) {
-        	LOG_DBG("Threshold: %d.\n", temp_threshold);
-        	int delta;
         	//change status based on temp
         	if(temp_threshold > temp) {
-        		delta = temp_threshold - temp;
-        		if(delta > 5) {
-        			strncpy(status, "max", 3);
-        			status[4] = '\0';
+        		if((temp_threshold - temp) > 5) {
+        			strcpy(status, "max\0");
         			leds_set(LEDS_NUM_TO_MASK(LEDS_YELLOW));
         		} else {
-        			strncpy(status, "on", 2);
-        			status[3] = '\0';
-        			status[4] = '\0';
+        			strcpy(status, "on\0");
         			leds_set(LEDS_NUM_TO_MASK(LEDS_GREEN));
        			}
-        		interval_update(delta, true);
+        		interval_update(true);
         	} else if (temp_threshold <= temp) {
-        		delta = temp - temp_threshold;
-        		strncpy(status, "off", 3);
-        		status[4] = '\0';
+        		strcpy(status, "off\0");
         		leds_set(LEDS_NUM_TO_MASK(LEDS_RED));
-        		interval_update(delta, false);
+        		interval_update(false);
         	}
         }
 
         res_radiator.trigger();
+
         if(ev == PROCESS_EVENT_TIMER || ev == RANGE_CHANGED) {
         	res_temp.trigger();
         	res_hum.trigger();
