@@ -51,7 +51,7 @@
 				<archive>
 					<manifest>
 						<addClasspath>true</addClasspath>
-						<mainClass>iot.unipi.it.Server</mainClass>
+						<mainClass>it.unipi.iot.client.ClientInterface</mainClass>
 						<addDefaultImplementationEntries>true</addDefaultImplementationEntries>
 					</manifest>
 				</archive>

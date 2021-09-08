@@ -125,7 +125,7 @@ public class ClientInterface {
 	private static void setTemperature() throws IOException {
 		out.println("------------------- Set Temperature -------------------");
 		if(smartMode == SmartMode.AUTO) {
-			out.println("Heating system into auto mode, switch to manual mode to set temperature level.");
+			out.println("Heating system in auto mode, switch to manual mode to set temperature level.");
 		} else {
 			ResourcesHandler rh = ResourcesHandler.getInstance();
 			int temp_delta = 0;
@@ -163,14 +163,14 @@ public class ClientInterface {
 	private static void setMode() throws IOException, NumberFormatException {
 		out.println("------------------- Set Mode -------------------");
 		out.println("Actual mode: " + smartMode.toString());
-		out.print("Insert new mode (auto, manual):");
+		out.println("Insert new mode (auto, manual):");
 		prompt();
 		String userMode = input.readLine();
 			
 		switch(userMode.toLowerCase()) {
 			case "auto":
 				smartMode = SmartMode.AUTO;
-				out.print("Set desired temperature: ");
+				out.println("Set desired temperature: ");
 				prompt();
 				temperature = Integer.parseInt(input.readLine());
 				autoMode();
